@@ -2,7 +2,13 @@
 var express = require('express'),
     app     = express(),
     morgan  = require('morgan');
-    
+
+var webSocketsServerPort = 1337;
+var webSocketServer = require('websocket').server;
+var http = require('http');
+
+var server = http.createServer(function(request, response) {});
+
 Object.assign=require('object-assign')
 
 app.engine('html', require('ejs').renderFile);
@@ -123,3 +129,22 @@ app.listen(port, ip);
 console.log('Server running on http://%s:%s', ip, port);
 
 module.exports = app ;
+
+
+server.listen(webSocketsServerPort, function() {
+  console.log((new Date()) + " Server is listening on port "
+      + webSocketsServerPort);
+});
+
+var wsServer = new webSocketServer({
+  httpServer: server
+});
+wsServer.on('request', function(request) {
+  var connection = request.accept(null, request.origin);
+  connection.on('message', function(message) {
+    connection.send(JSON.stringify(message));
+  });
+  connection.on('close', function(connection) {
+      
+  });
+});
